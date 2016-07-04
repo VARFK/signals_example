@@ -16,6 +16,7 @@ class Book(models.Model):
     author = models.CharField(max_length=150, null=False)
     num_pages = models.PositiveIntegerField()
     num_copies = models.PositiveIntegerField(null=False)
+    num_reviews = models.PositiveIntegerField(null=False, default=0)
 
     def is_available(self):
         return self.num_copies > 0
@@ -33,6 +34,16 @@ class User(models.Model):
 
     def is_active(self):
         return self.last_login < (date.today() - timedelta(days=60))
+
+    def __unicode__(self):
+        return self.name
+
+
+class BookReview(models.Model):
+    name = models.CharField(max_length=100, null=False, blank=False)
+    body = models.TextField(null=False, blank=False)
+    book = models.ForeignKey(Book)
+    user = models.ForeignKey(User, null=True)
 
     def __unicode__(self):
         return self.name
