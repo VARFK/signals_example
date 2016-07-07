@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^book_delete/(?P<pk>\d+)$', views.book_delete, name='book_delete'),
     url(r'^book_lend/(?P<pk>\d+)$', views.book_lend, name='book_lend'),
     url(r'^book_return/(?P<pk>\d+)$', views.book_return, name='book_return'),
+    url(r'^book_review/(?P<pk>\d+)$', views.book_review, name='book_review'),
 ]

@@ -4,6 +4,7 @@ from django.forms import ModelForm
 from django import forms
 from book_shelf.models import Book
 from book_shelf.models import User
+from book_shelf.models import BookReview
 
 
 class BookForm(ModelForm):
@@ -23,12 +24,19 @@ class LoginForm(forms.Form):
         user = User.objects.filter(name=username, password=password)
         if (not user) or (not self.user_login(user[0])):
             raise forms.ValidationError("Username / Password not valid")
+        self.instance = user
+        return user
 
     def user_login(self, user):
         if user:
-            caches['default'].set('user', user)
             user.last_login = datetime.datetime.now()
             user.save()
             return True
         else:
             return False
+
+
+class BookReviewForm(ModelForm):
+    class Meta:
+        model = BookReview
+        fields = ['name', 'body', 'book', 'user']

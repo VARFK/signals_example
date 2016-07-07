@@ -32,8 +32,11 @@ body{
 				{% if 'adm' == privileges.name %}
 					<a href="{% url 'book_update' book.id %}">Edit</a> |
 					<a href="{% url 'book_delete' book.id %}">Delete</a>
-				{% elif 'usr' == privileges.name and book.num_copies > 0 %}
-					<a href="{% url 'book_lend' book.id %}">Lend</a>
+				{% elif 'usr' == privileges.name %}
+					<a href="{% url 'book_review' book.id %}">Review</a>
+					{% if book.num_copies > 0 %}
+						| <a href="{% url 'book_lend' book.id %}">Lend</a>
+					{% endif %}
 				{% else %}
 					No options available
 				{% endif %}

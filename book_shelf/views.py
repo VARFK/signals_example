@@ -3,12 +3,13 @@ from django.core.cache import caches
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from book_shelf.models import Book, User
-from book_shelf.forms import BookForm, LoginForm
+from book_shelf.forms import BookForm, LoginForm, BookReviewForm
 
 
 def index(request):
-    cache = caches['default']
-    user = cache.get('user')
+    user = None
+    if 'user' in request.session:
+        user = request.session['user']
     context = {}
     context['book_list'] = get_books()
     if user:
@@ -23,6 +24,7 @@ def login(request):
     if request.POST:
         form = LoginForm(request.POST)
         if form.is_valid():
+            request.session['user'] = form.instance
             return redirect('index')
         else:
             state = "Your username and/or password were incorrect."
@@ -31,7 +33,7 @@ def login(request):
 
 
 def logout(request):
-    caches['default'].delete('user')
+    del request.session['user']
     return redirect('index')
 
 
@@ -63,9 +65,9 @@ def book_delete(request, pk):
 def book_lend(request, pk):
     try:
         book = Book.objects.get(pk=pk)
-        user = caches['default'].get('user')
+        user = request.session['user']
         user = book_lend_logic(user, book)
-        caches['default'].set('user', user)
+        request.session['user'] = user
         return redirect('index')
     except Exception as e:
         return render(request, '404.html', {'error': e.message})
@@ -73,10 +75,10 @@ def book_lend(request, pk):
 
 def book_return(request, pk):
     try:
-        user = caches['default'].get('user')
+        user = request.session['user']
         book = user.books_lent.get(pk=pk)
         user = book_return_logic(user, book)
-        caches['default'].set('user', user)
+        request.session['user'] = user
         return redirect('index')
     except Exception as e:
         return render(request, '404.html', {'error': e.message})
@@ -108,3 +110,15 @@ def book_return_logic(user, book):
         return user
     else:
         raise Exception("User is not available")
+
+
+def book_review(request, pk):
+    try:
+        user = None
+        if 'user' in request.session:
+            user = request.session['user']
+        book = get_object_or_404(Book, pk=pk)
+        form = BookReviewForm(initial={'book': book, 'user': user})
+        return render(request, 'book_review.html', {'form': form})
+    except Exception as e:
+        return render(request, '404.html', {'error': e.message})
