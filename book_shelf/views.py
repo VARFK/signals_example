@@ -75,7 +75,7 @@ def book_lend(request, pk):
 
 def book_return(request, pk):
     try:
-        user = User.objects.get(pk=equest.session['user'])
+        user = User.objects.get(pk=request.session['user'])
         book = user.books_lent.get(pk=pk)
         user = book_return_logic(user, book)
         return redirect('index')
