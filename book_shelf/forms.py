@@ -24,8 +24,7 @@ class LoginForm(forms.Form):
         user = User.objects.filter(name=username, password=password)
         if (not user) or (not self.user_login(user[0])):
             raise forms.ValidationError("Username / Password not valid")
-        self.instance = user
-        return user
+        self.instance = user[0].id
 
     def user_login(self, user):
         if user:

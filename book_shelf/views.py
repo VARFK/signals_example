@@ -9,7 +9,7 @@ from book_shelf.forms import BookForm, LoginForm, BookReviewForm
 def index(request):
     user = None
     if 'user' in request.session:
-        user = request.session['user']
+        user = User.objects.get(pk=request.session['user'])
     context = {}
     context['book_list'] = get_books()
     if user:
@@ -65,9 +65,8 @@ def book_delete(request, pk):
 def book_lend(request, pk):
     try:
         book = Book.objects.get(pk=pk)
-        user = request.session['user']
+        user = User.objects.get(pk=request.session['user'])
         user = book_lend_logic(user, book)
-        request.session['user'] = user
         return redirect('index')
     except Exception as e:
         return render(request, '404.html', {'error': e.message})
@@ -75,10 +74,9 @@ def book_lend(request, pk):
 
 def book_return(request, pk):
     try:
-        user = request.session['user']
+        user = User.objects.get(pk=equest.session['user'])
         book = user.books_lent.get(pk=pk)
         user = book_return_logic(user, book)
-        request.session['user'] = user
         return redirect('index')
     except Exception as e:
         return render(request, '404.html', {'error': e.message})
@@ -113,12 +111,11 @@ def book_return_logic(user, book):
 
 
 def book_review(request, pk):
-    try:
-        user = None
-        if 'user' in request.session:
-            user = request.session['user']
-        book = get_object_or_404(Book, pk=pk)
-        form = BookReviewForm(initial={'book': book, 'user': user})
-        return render(request, 'book_review.html', {'form': form})
-    except Exception as e:
-        return render(request, '404.html', {'error': e.message})
+    user = get_object_or_404(User, pk=request.session['user'])
+    book = get_object_or_404(Book, pk=pk)
+    form = BookReviewForm(request.POST or None,
+                          initial={'book': book, 'user': user})
+    if form.is_valid():
+        form.save()
+        return redirect('index')
+    return render(request, 'book_review.html', {'form': form})
