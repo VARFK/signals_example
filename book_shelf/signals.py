@@ -6,10 +6,11 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-
+# Definition of the custom signal
 review_signal = Signal(providing_args=["book", "review"])
 
 
+# @receiver(review_signal)
 def review_created(sender, **kwargs):
     book = kwargs['book']
     review = kwargs['review']
