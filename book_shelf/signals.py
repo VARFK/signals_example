@@ -7,14 +7,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-review_signal = Signal(providing_args=["review"])
+review_signal = Signal(providing_args=["book", "review"])
 
 
 def review_created(sender, **kwargs):
+    book = kwargs['book']
     review = kwargs['review']
-    print '* review_created: {0}'.format(str(review))
-    print review
-
+    print '* review_created: {0} for book {1}'.format(str(review), str(book))
+    book.num_reviews += 1
+    book.save()
 
 review_signal.connect(review_created)
 

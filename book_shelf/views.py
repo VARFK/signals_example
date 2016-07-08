@@ -4,6 +4,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from book_shelf.models import Book, User
 from book_shelf.forms import BookForm, LoginForm, BookReviewForm
+from book_shelf.signals import review_signal
 
 
 def index(request):
@@ -117,5 +118,6 @@ def book_review(request, pk):
                           initial={'book': book, 'user': user})
     if form.is_valid():
         form.save()
+        review_signal.send(sender=None, book=book, review=form.instance)
         return redirect('index')
     return render(request, 'book_review.html', {'form': form})
